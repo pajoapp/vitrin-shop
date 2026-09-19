@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>مدیر کل | ویترین</title>
+<meta name="theme-color" content="#1B1023">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1B1023; --surface:#2A1633; --surface-2:#341B40;
+    --gold:#E8A33D; --gold-soft:#F0C179; --rose:#E85D75;
+    --cream:#FBF3E7; --cream-dim:#C9BBC7; --line:rgba(251,243,231,0.12);
+    --danger:#E85D5D; --ok:#5DBE7A;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Vazirmatn', sans-serif; background:var(--bg); color:var(--cream); min-height:100vh;}
+  input, select, button, textarea{font-family:inherit;}
+
+  .auth-wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;}
+  .auth-card{width:100%; max-width:400px; background:var(--surface); border:1px solid var(--line); border-radius:22px; padding:28px 24px;}
+  .auth-logo{width:40px; height:40px; border-radius:12px; margin-bottom:16px; background:linear-gradient(135deg, var(--gold), var(--rose));}
+  .auth-card h1{font-size:20px; font-weight:800; margin-bottom:6px;}
+  .auth-card .sub{color:var(--cream-dim); font-size:13.5px; margin-bottom:22px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:13px; color:var(--cream-dim); margin-bottom:6px;}
+  .field input{width:100%; padding:12px 14px; border-radius:12px; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-size:15px;}
+  .field input:focus{outline:none; border-color:var(--gold);}
+  .btn{padding:13px; border-radius:12px; border:none; font-weight:700; font-size:15px; cursor:pointer;}
+  .btn-primary{width:100%; background:linear-gradient(135deg, var(--rose), #d1435c); color:var(--cream); margin-top:6px;}
+  .btn-secondary{background:transparent; border:1px solid var(--line); color:var(--cream);}
+  .form-msg{font-size:13px; padding:10px 12px; border-radius:10px; margin-bottom:14px; background:rgba(232,93,93,0.12); color:#f0a3a3; display:none;}
+  .form-msg.show{display:block;}
+  .form-msg.ok{background:rgba(93,190,122,0.12); color:#a3e0b5;}
+
+  #app{display:none;}
+  header.appbar{position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:rgba(27,16,35,0.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .appbar .brand{display:flex; align-items:center; gap:8px; font-weight:800;}
+  .appbar .brand-mark{width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg, var(--gold), var(--rose));}
+  .icon-btn{background:transparent; border:1px solid var(--line); color:var(--cream-dim); padding:8px 12px; border-radius:100px; font-size:13px; cursor:pointer;}
+  main{padding:18px; max-width:840px; margin:0 auto; padding-bottom:80px;}
+
+  .tabs{display:flex; gap:8px; margin-bottom:20px; overflow-x:auto;}
+  .tab{padding:9px 18px; border-radius:100px; background:var(--surface); border:1px solid var(--line); color:var(--cream-dim); font-size:13.5px; font-weight:600; cursor:pointer; white-space:nowrap;}
+  .tab.active{background:var(--gold-soft); color:var(--bg); border-color:var(--gold-soft);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:22px;}
+  .stat-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 8px; text-align:center;}
+  .stat-card .num{font-size:19px; font-weight:800; color:var(--gold-soft);}
+  .stat-card .lbl{font-size:11px; color:var(--cream-dim); margin-top:2px;}
+
+  .row-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:10px;}
+  .row-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .row-top .name{font-weight:700; font-size:14.5px;}
+  .row-top .meta{font-size:12px; color:var(--cream-dim); margin-top:3px;}
+  .badge{display:inline-block; font-size:10.5px; padding:2px 8px; border-radius:100px;}
+  .badge.active{background:rgba(93,190,122,0.15); color:var(--ok);}
+  .badge.suspended{background:rgba(232,93,93,0.15); color:var(--danger);}
+  .row-actions{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  .row-actions select, .row-actions button{
+    font-size:12.5px; padding:7px 12px; border-radius:9px; background:var(--surface-2);
+    border:1px solid var(--line); color:var(--cream); cursor:pointer;
+  }
+  .row-actions button.danger{color:var(--danger); border-color:rgba(232,93,93,0.3);}
+
+  .section-title{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .section-title h2{font-size:16px; font-weight:800;}
+  .add-btn{background:var(--rose); color:var(--cream); border:none; padding:9px 16px; border-radius:100px; font-weight:700; font-size:13.5px; cursor:pointer;}
+
+  .plan-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:12px;}
+  .plan-card .top{display:flex; justify-content:space-between; align-items:center;}
+  .plan-card .price{color:var(--gold-soft); font-weight:800; font-size:15px;}
+  .plan-card .feat-list{margin-top:10px; font-size:12.5px; color:var(--cream-dim); line-height:2;}
+  .plan-card .feat-list .no{text-decoration:line-through; opacity:0.6;}
+
+  .empty-state{text-align:center; padding:40px 20px; color:var(--cream-dim); background:var(--surface); border:1px dashed var(--line); border-radius:16px;}
+
+  .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:100; display:none; align-items:flex-end; justify-content:center;}
+  .modal-overlay.show{display:flex;}
+  .modal{width:100%; max-width:520px; background:var(--surface); border-radius:22px 22px 0 0; padding:22px 20px 26px; max-height:90vh; overflow-y:auto; position:relative;}
+  .modal h3{font-size:17px; font-weight:800; margin-bottom:16px;}
+  .close-x{position:absolute; top:14px; left:14px; background:none; border:none; color:var(--cream-dim); font-size:20px; cursor:pointer;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .toggle-row{display:flex; align-items:center; justify-content:space-between; padding:8px 0;}
+  .toggle-row span{font-size:13.5px;}
+
+  .feature-row{display:grid; grid-template-columns:1fr 90px 90px 32px; gap:6px; margin-bottom:8px; align-items:center;}
+  .feature-row input, .feature-row select{padding:9px 10px; border-radius:9px; background:var(--surface-2); border:1px solid var(--line); color:var(--cream); font-size:12.5px;}
+  .feature-row button{background:var(--surface-2); border:1px solid var(--line); color:var(--danger); border-radius:9px; cursor:pointer;}
+  .modal-actions{display:flex; gap:10px; margin-top:16px;}
+
+  @media (min-width:700px){ .modal-overlay{align-items:center;} .modal{border-radius:22px;} }
+</style>
+</head>
+<body>
+
+<!-- ================= SETUP (first run only) ================= -->
+<div class="auth-wrap" id="setupScreen" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-logo"></div>
+    <h1>راه‌اندازی اولیهٔ پنل مدیر کل</h1>
+    <p class="sub">این فرم فقط یک‌بار قابل استفاده‌ست</p>
+    <div class="form-msg" id="setupMsg"></div>
+    <form id="setupForm">
+      <div class="field"><label>کلید راه‌اندازی (از wrangler.toml)</label><input type="text" id="setupKey" required></div>
+      <div class="field"><label>نام کاربری مدیر کل</label><input type="text" id="setupUsername" required></div>
+      <div class="field"><label>رمز عبور (حداقل ۶ کاراکتر)</label><input type="password" id="setupPassword" required minlength="6"></div>
+      <button class="btn btn-primary" type="submit">ساخت حساب مدیر کل</button>
+    </form>
+  </div>
+</div>
+
+<!-- ================= LOGIN ================= -->
+<div class="auth-wrap" id="loginScreen" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-logo"></div>
+    <h1>ورود مدیر کل</h1>
+    <p class="sub">مدیریت کل پلتفرم ویترین</p>
+    <div class="form-msg" id="loginMsg"></div>
+    <form id="loginForm">
+      <div class="field"><label>نام کاربری</label><input type="text" id="loginUsername" required></div>
+      <div class="field"><label>رمز عبور</label><input type="password" id="loginPassword" required></div>
+      <button class="btn btn-primary" type="submit">ورود</button>
+    </form>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <header class="appbar">
+    <div class="brand"><div class="brand-mark"></div>مدیر کل ویترین</div>
+    <button class="icon-btn" id="logoutBtn">خروج</button>
+  </header>
+
+  <main>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="num" id="statSellers">–</div><div class="lbl">فروشنده</div></div>
+      <div class="stat-card"><div class="num" id="statActive">–</div><div class="lbl">فعال</div></div>
+      <div class="stat-card"><div class="num" id="statProducts">–</div><div class="lbl">محصول</div></div>
+      <div class="stat-card"><div class="num" id="statOrders">–</div><div class="lbl">سفارش</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="sellers">فروشنده‌ها</div>
+      <div class="tab" data-tab="plans">پلن‌ها و قیمت‌گذاری</div>
+    </div>
+
+    <div class="tab-panel active" id="tab-sellers">
+      <div id="sellerList"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-plans">
+      <div class="section-title">
+        <h2>پلن‌های اشتراک</h2>
+        <button class="add-btn" id="addPlanBtn">+ پلن جدید</button>
+      </div>
+      <div id="planList"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ================= PLAN MODAL ================= -->
+<div class="modal-overlay" id="planModalOverlay">
+  <div class="modal">
+    <button class="close-x" id="closePlanModal">✕</button>
+    <h3 id="planModalTitle">پلن جدید</h3>
+    <div class="form-msg" id="planMsg"></div>
+    <form id="planForm">
+      <input type="hidden" id="planId">
+      <div class="field"><label>نام پلن (نمایش به فروشنده)</label><input type="text" id="planName" required placeholder="مثلاً حرفه‌ای"></div>
+      <div class="row2">
+        <div class="field"><label>قیمت (تومان — صفر یعنی رایگان)</label><input type="number" id="planPrice" min="0" value="0"></div>
+        <div class="field">
+          <label>دورهٔ پرداخت</label>
+          <select id="planBilling" style="width:100%; padding:12px 14px; border-radius:12px; background:var(--surface-2); border:1px solid var(--line); color:var(--cream);">
+            <option value="free">رایگان</option>
+            <option value="monthly">ماهانه</option>
+            <option value="yearly">سالانه</option>
+          </select>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span>این پلن قابل فروش/فعال باشد</span>
+        <input type="checkbox" id="planActive" checked style="width:auto;">
+      </div>
+
+      <div class="field" style="margin-top:10px;">
+        <label>قابلیت‌ها و محدودیت‌ها</label>
+        <div id="featureRows"></div>
+        <button type="button" class="btn btn-secondary" id="addFeatureRow" style="width:100%; margin-top:4px;">+ افزودن قابلیت</button>
+      </div>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn btn-primary" style="flex:1;">ذخیره پلن</button>
+        <button type="button" class="btn btn-secondary" id="deletePlanBtn" style="display:none;">حذف</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const API = ""; // same-origin backend
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    credentials: "include",
+    headers: { "content-type": "application/json" },
+    ...opts,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "خطای ناشناخته");
+  return data;
+}
+function toman(n){ return Number(n).toLocaleString("fa-IR") + " تومان"; }
+function showMsg(el, text, ok=false){ el.textContent = text; el.classList.add("show"); el.classList.toggle("ok", ok); }
+
+// ---------- boot ----------
+async function boot() {
+  try {
+    const { needs_setup } = await api("/api/superadmin/needs-setup");
+    if (needs_setup) {
+      document.getElementById("setupScreen").style.display = "flex";
+      return;
+    }
+    await api("/api/superadmin/me");
+    document.getElementById("app").style.display = "block";
+    await loadAll();
+  } catch {
+    document.getElementById("loginScreen").style.display = "flex";
+  }
+}
+
+document.getElementById("setupForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("setupMsg"); msg.classList.remove("show");
+  try {
+    await api("/api/superadmin/setup", {
+      method: "POST",
+      body: JSON.stringify({
+        setup_key: document.getElementById("setupKey").value.trim(),
+        username: document.getElementById("setupUsername").value.trim(),
+        password: document.getElementById("setupPassword").value,
+      }),
+    });
+    document.getElementById("setupScreen").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+  } catch (err) { showMsg(msg, err.message); }
+};
+
+document.getElementById("loginForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("loginMsg"); msg.classList.remove("show");
+  try {
+    await api("/api/superadmin/login", {
+      method: "POST",
+      body: JSON.stringify({
+        username: document.getElementById("loginUsername").value.trim(),
+        password: document.getElementById("loginPassword").value,
+      }),
+    });
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    await loadAll();
+  } catch (err) { showMsg(msg, err.message); }
+};
+
+document.getElementById("logoutBtn").onclick = async () => {
+  await api("/api/superadmin/logout", { method: "POST" });
+  location.reload();
+};
+
+// ---------- tabs ----------
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+  };
+});
+
+async function loadAll() {
+  await Promise.all([loadStats(), loadSellers(), loadPlans()]);
+}
+
+async function loadStats() {
+  const s = await api("/api/superadmin/stats");
+  document.getElementById("statSellers").textContent = s.total_sellers;
+  document.getElementById("statActive").textContent = s.active_sellers;
+  document.getElementById("statProducts").textContent = s.total_products;
+  document.getElementById("statOrders").textContent = s.total_orders;
+}
+
+// ---------- sellers ----------
+let plansCache = [];
+async function loadSellers() {
+  const sellers = await api("/api/superadmin/sellers");
+  const list = document.getElementById("sellerList");
+  if (!sellers.length) { list.innerHTML = '<div class="empty-state">هنوز فروشنده‌ای ثبت‌نام نکرده</div>'; return; }
+
+  const planOptions = plansCache.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+
+  list.innerHTML = sellers.map(s => `
+    <div class="row-card">
+      <div class="row-top">
+        <div>
+          <div class="name">${s.shop_name} <span class="badge ${s.status}">${s.status === 'active' ? 'فعال' : 'مسدود'}</span></div>
+          <div class="meta">@${s.username} · ${s.phone} · ${s.product_count} محصول · ${s.order_count} سفارش · پلن: ${s.plan_name || '—'}</div>
+        </div>
+      </div>
+      <div class="row-actions">
+        <select onchange="changeSellerPlan(${s.id}, this.value)">
+          ${plansCache.map(p => `<option value="${p.id}" ${p.id === s.plan_id ? 'selected' : ''}>${p.name}</option>`).join("")}
+        </select>
+        <button onclick="toggleSellerStatus(${s.id}, '${s.status}')">${s.status === 'active' ? 'مسدودکردن' : 'فعال‌کردن'}</button>
+        <button class="danger" onclick="deleteSeller(${s.id}, '${s.shop_name.replace(/'/g, "")}')">حذف</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function changeSellerPlan(id, planId) {
+  await api(`/api/superadmin/sellers/${id}`, { method: "PUT", body: JSON.stringify({ plan_id: Number(planId) }) });
+  await loadSellers();
+}
+async function toggleSellerStatus(id, current) {
+  const next = current === "active" ? "suspended" : "active";
+  await api(`/api/superadmin/sellers/${id}`, { method: "PUT", body: JSON.stringify({ status: next }) });
+  await loadSellers(); await loadStats();
+}
+async function deleteSeller(id, name) {
+  if (!confirm(`فروشگاه «${name}» و همهٔ محصولات و سفارش‌هایش برای همیشه حذف شود؟`)) return;
+  await api(`/api/superadmin/sellers/${id}`, { method: "DELETE" });
+  await loadSellers(); await loadStats();
+}
+
+// ---------- plans ----------
+async function loadPlans() {
+  plansCache = await api("/api/superadmin/plans");
+  const list = document.getElementById("planList");
+  if (!plansCache.length) { list.innerHTML = '<div class="empty-state">هنوز پلنی نساخته‌ای</div>'; return; }
+
+  list.innerHTML = plansCache.map(p => `
+    <div class="plan-card">
+      <div class="top">
+        <div>
+          <div class="name">${p.name} ${p.is_active ? '' : '<span class="badge suspended">غیرفعال</span>'}</div>
+          <div class="price">${p.price > 0 ? toman(p.price) + (p.billing_period === 'yearly' ? ' / سال' : ' / ماه') : 'رایگان'}</div>
+        </div>
+        <button class="icon-btn" onclick='editPlan(${p.id})'>ویرایش</button>
+      </div>
+      <div class="feat-list">
+        ${p.features.map(f => `<div class="${f.type === 'boolean' && f.value === false ? 'no' : ''}">${f.label}${f.type === 'limit' ? ': ' + f.value : ''}</div>`).join("") || '—'}
+      </div>
+    </div>
+  `).join("");
+  // re-render seller list too since plan names/options may have changed
+  if (document.getElementById("sellerList").innerHTML) loadSellers();
+}
+
+const planOverlay = document.getElementById("planModalOverlay");
+const planForm = document.getElementById("planForm");
+const planMsg = document.getElementById("planMsg");
+const deletePlanBtn = document.getElementById("deletePlanBtn");
+
+function openPlanModal(plan = null) {
+  planMsg.classList.remove("show");
+  document.getElementById("planModalTitle").textContent = plan ? "ویرایش پلن" : "پلن جدید";
+  document.getElementById("planId").value = plan?.id || "";
+  document.getElementById("planName").value = plan?.name || "";
+  document.getElementById("planPrice").value = plan?.price || 0;
+  document.getElementById("planBilling").value = plan?.billing_period || "monthly";
+  document.getElementById("planActive").checked = plan ? !!plan.is_active : true;
+  document.getElementById("featureRows").innerHTML = "";
+  (plan?.features || []).forEach(f => addFeatureRow(f.label, f.key, f.type, f.value));
+  if (!plan) {
+    // sensible starting defaults, mirroring what the product already supports
+    addFeatureRow("حداکثر تعداد محصول", "max_products", "limit", 10);
+    addFeatureRow("آپلود عکس از گوشی", "allow_image_upload", "boolean", true);
+    addFeatureRow("سایز و رنگ چندگانه", "allow_variants", "boolean", true);
+  }
+  deletePlanBtn.style.display = plan ? "block" : "none";
+  planOverlay.classList.add("show");
+}
+document.getElementById("addPlanBtn").onclick = () => openPlanModal();
+document.getElementById("closePlanModal").onclick = () => planOverlay.classList.remove("show");
+function editPlan(id) { openPlanModal(plansCache.find(p => p.id === id)); }
+
+function addFeatureRow(label = "", key = "", type = "boolean", value = true) {
+  const row = document.createElement("div");
+  row.className = "feature-row";
+  row.innerHTML = `
+    <input type="text" placeholder="نام قابلیت (مثلاً پشتیبانی ویژه)" class="f-label" value="${label}">
+    <select class="f-type" onchange="this.parentElement.querySelector('.f-value').outerHTML = this.value === 'boolean'
+        ? '<select class=&quot;f-value&quot;><option value=&quot;true&quot;>دارد</option><option value=&quot;false&quot;>ندارد</option></select>'
+        : '<input type=&quot;number&quot; class=&quot;f-value&quot; placeholder=&quot;عدد&quot; min=&quot;0&quot;>';">
+      <option value="boolean" ${type === 'boolean' ? 'selected' : ''}>دارد/ندارد</option>
+      <option value="limit" ${type === 'limit' ? 'selected' : ''}>عددی</option>
+    </select>
+    ${type === 'boolean'
+      ? `<select class="f-value"><option value="true" ${value === true ? 'selected' : ''}>دارد</option><option value="false" ${value === false ? 'selected' : ''}>ندارد</option></select>`
+      : `<input type="number" class="f-value" min="0" value="${value}">`}
+    <button type="button" onclick="this.parentElement.remove()">✕</button>
+  `;
+  row.dataset.key = key;
+  document.getElementById("featureRows").appendChild(row);
+}
+document.getElementById("addFeatureRow").onclick = () => addFeatureRow();
+
+function slugifyKey(label, existingKey) {
+  if (existingKey) return existingKey;
+  return "feat_" + label.trim().replace(/\s+/g, "_").slice(0, 20) + "_" + Math.random().toString(36).slice(2, 6);
+}
+
+function collectFeatures() {
+  return Array.from(document.querySelectorAll("#featureRows .feature-row")).map(row => {
+    const label = row.querySelector(".f-label").value.trim();
+    const type = row.querySelector(".f-type").value;
+    const rawValue = row.querySelector(".f-value").value;
+    const value = type === "boolean" ? rawValue === "true" : Number(rawValue) || 0;
+    const key = slugifyKey(label, row.dataset.key);
+    return { key, label, type, value };
+  }).filter(f => f.label);
+}
+
+planForm.onsubmit = async (e) => {
+  e.preventDefault();
+  const id = document.getElementById("planId").value;
+  const payload = {
+    key: id ? undefined : "plan_" + Date.now(),
+    name: document.getElementById("planName").value.trim(),
+    price: Number(document.getElementById("planPrice").value),
+    billing_period: document.getElementById("planBilling").value,
+    is_active: document.getElementById("planActive").checked,
+    features: collectFeatures(),
+  };
+  try {
+    if (id) {
+      await api(`/api/superadmin/plans/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+    } else {
+      await api("/api/superadmin/plans", { method: "POST", body: JSON.stringify(payload) });
+    }
+    planOverlay.classList.remove("show");
+    await loadPlans();
+  } catch (err) { showMsg(planMsg, err.message); }
+};
+deletePlanBtn.onclick = async () => {
+  const id = document.getElementById("planId").value;
+  if (!id || !confirm("این پلن حذف شود؟")) return;
+  try {
+    await api(`/api/superadmin/plans/${id}`, { method: "DELETE" });
+    planOverlay.classList.remove("show");
+    await loadPlans();
+  } catch (err) { showMsg(planMsg, err.message); }
+};
+
+boot();
+</script>
+</body>
+</html>

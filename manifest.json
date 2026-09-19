@@ -1,0 +1,16 @@
+{
+  "name": "ویترین — فروشگاه‌ساز اینستاگرامی",
+  "short_name": "ویترین",
+  "description": "فروشگاه‌ساز رایگان برای فروشنده‌های اینستاگرام",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1B1023",
+  "theme_color": "#1B1023",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "fa",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

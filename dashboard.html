@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>پنل مدیریت | ویترین</title>
+<meta name="theme-color" content="#1B1023">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1B1023; --surface:#2A1633; --surface-2:#341B40;
+    --gold:#E8A33D; --gold-soft:#F0C179; --rose:#E85D75;
+    --cream:#FBF3E7; --cream-dim:#C9BBC7;
+    --line:rgba(251,243,231,0.12); --radius:16px;
+    --danger:#E85D5D; --ok:#5DBE7A;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Vazirmatn', sans-serif; background:var(--bg); color:var(--cream);
+    min-height:100vh;
+  }
+  input, textarea, select, button{font-family:inherit;}
+  img{max-width:100%;}
+
+  /* ---------- Auth screens ---------- */
+  .auth-wrap{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .auth-card{
+    width:100%; max-width:380px; background:var(--surface);
+    border:1px solid var(--line); border-radius:22px; padding:28px 24px;
+  }
+  .auth-logo{
+    width:40px; height:40px; border-radius:12px; margin-bottom:16px;
+    background:linear-gradient(135deg, var(--gold), var(--rose));
+  }
+  .auth-card h1{font-size:21px; font-weight:800; margin-bottom:6px;}
+  .auth-card .sub{color:var(--cream-dim); font-size:13.5px; margin-bottom:22px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:13px; color:var(--cream-dim); margin-bottom:6px;}
+  .field input{
+    width:100%; padding:12px 14px; border-radius:12px;
+    background:var(--surface-2); border:1px solid var(--line);
+    color:var(--cream); font-size:15px;
+  }
+  .field input:focus{outline:none; border-color:var(--gold);}
+  .btn{
+    width:100%; padding:13px; border-radius:12px; border:none;
+    font-weight:700; font-size:15px; cursor:pointer; margin-top:6px;
+  }
+  .btn-primary{background:linear-gradient(135deg, var(--rose), #d1435c); color:var(--cream);}
+  .btn-secondary{background:transparent; border:1px solid var(--line); color:var(--cream);}
+  .switch-mode{
+    text-align:center; margin-top:16px; font-size:13.5px; color:var(--cream-dim);
+  }
+  .switch-mode a{color:var(--gold-soft); cursor:pointer; text-decoration:none; font-weight:600;}
+  .form-msg{
+    font-size:13px; padding:10px 12px; border-radius:10px; margin-bottom:14px;
+    background:rgba(232,93,93,0.12); color:#f0a3a3; display:none;
+  }
+  .form-msg.show{display:block;}
+  .form-msg.ok{background:rgba(93,190,122,0.12); color:#a3e0b5;}
+
+  /* ---------- App shell ---------- */
+  #app{display:none;}
+  header.appbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; background:rgba(27,16,35,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .appbar .brand{display:flex; align-items:center; gap:8px; font-weight:800;}
+  .appbar .brand-mark{width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg, var(--gold), var(--rose));}
+  .appbar .shopname{font-size:12.5px; color:var(--cream-dim); margin-inline-start:4px;}
+  .icon-btn{
+    background:transparent; border:1px solid var(--line); color:var(--cream-dim);
+    padding:8px 12px; border-radius:100px; font-size:13px; cursor:pointer;
+  }
+
+  main{padding:18px; max-width:720px; margin:0 auto; padding-bottom:90px;}
+
+  /* stat cards */
+  .stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px;}
+  .stat-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:14px 10px; text-align:center;
+  }
+  .stat-card .num{font-size:20px; font-weight:800; color:var(--gold-soft);}
+  .stat-card .lbl{font-size:11.5px; color:var(--cream-dim); margin-top:2px;}
+
+  .shop-link-box{
+    display:flex; align-items:center; gap:8px; background:var(--surface);
+    border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:22px;
+  }
+  .shop-link-box code{flex:1; font-size:13px; color:var(--gold-soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .shop-link-box button{
+    background:var(--gold-soft); color:var(--bg); border:none; padding:7px 14px;
+    border-radius:100px; font-size:12.5px; font-weight:700; cursor:pointer;
+  }
+
+  .section-title{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .section-title h2{font-size:16px; font-weight:800;}
+  .add-btn{
+    background:var(--rose); color:var(--cream); border:none; padding:9px 16px;
+    border-radius:100px; font-weight:700; font-size:13.5px; cursor:pointer;
+  }
+
+  .product-list{display:flex; flex-direction:column; gap:10px; margin-bottom:26px;}
+  .product-row{
+    display:flex; gap:12px; align-items:center; background:var(--surface);
+    border:1px solid var(--line); border-radius:14px; padding:10px;
+  }
+  .p-thumb{width:52px; height:52px; border-radius:10px; background:var(--surface-2); flex:none; overflow:hidden;}
+  .p-thumb img{width:100%; height:100%; object-fit:cover;}
+  .p-info{flex:1; min-width:0;}
+  .p-info .name{font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .p-info .meta{font-size:12px; color:var(--cream-dim); margin-top:2px;}
+  .badge{display:inline-block; font-size:10.5px; padding:2px 8px; border-radius:100px; margin-inline-start:6px;}
+  .badge.active{background:rgba(93,190,122,0.15); color:var(--ok);}
+  .badge.out{background:rgba(232,93,93,0.15); color:var(--danger);}
+  .badge.hidden{background:rgba(201,187,199,0.15); color:var(--cream-dim);}
+  .p-actions{display:flex; gap:6px; flex:none;}
+  .p-actions button{
+    background:var(--surface-2); border:1px solid var(--line); color:var(--cream);
+    width:34px; height:34px; border-radius:10px; cursor:pointer; font-size:14px;
+  }
+  .p-actions button.danger{color:var(--danger); border-color:rgba(232,93,93,0.3);}
+
+  .empty-state{
+    text-align:center; padding:40px 20px; color:var(--cream-dim);
+    background:var(--surface); border:1px dashed var(--line); border-radius:16px;
+  }
+
+  .order-row{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:12px 14px; margin-bottom:8px; font-size:13.5px;
+  }
+  .order-row .top{display:flex; justify-content:space-between; font-weight:700;}
+  .order-row .sub{color:var(--cream-dim); margin-top:4px; font-size:12.5px;}
+
+  /* ---------- Modal (add/edit product) ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:100;
+    display:none; align-items:flex-end; justify-content:center;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal{
+    width:100%; max-width:480px; background:var(--surface);
+    border-radius:22px 22px 0 0; padding:22px 20px 26px; max-height:88vh; overflow-y:auto;
+  }
+  .modal h3{font-size:17px; font-weight:800; margin-bottom:16px;}
+  .field textarea{
+    width:100%; padding:12px 14px; border-radius:12px; background:var(--surface-2);
+    border:1px solid var(--line); color:var(--cream); font-size:14px; resize:vertical; min-height:70px;
+  }
+  .modal-actions{display:flex; gap:10px; margin-top:8px;}
+  .modal-actions .btn{margin-top:0;}
+  .close-x{
+    position:absolute; top:14px; left:14px; background:none; border:none;
+    color:var(--cream-dim); font-size:20px; cursor:pointer;
+  }
+  .modal{position:relative;}
+
+  .variant-row{
+    display:grid; grid-template-columns:1fr 1fr 70px 32px; gap:6px; margin-bottom:8px;
+  }
+  .variant-row input{
+    padding:9px 10px; border-radius:9px; background:var(--surface-2);
+    border:1px solid var(--line); color:var(--cream); font-size:13px;
+  }
+  .variant-row button{
+    background:var(--surface-2); border:1px solid var(--line); color:var(--danger);
+    border-radius:9px; cursor:pointer; font-size:14px;
+  }
+
+  @media (min-width:700px){
+    .modal-overlay{align-items:center;}
+    .modal{border-radius:22px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH ================= -->
+<div class="auth-wrap" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo"></div>
+    <h1 id="authTitle">ورود به پنل مدیریت</h1>
+    <p class="sub" id="authSub">فروشگاهت را از اینجا مدیریت کن</p>
+    <div class="form-msg" id="formMsg"></div>
+
+    <!-- login -->
+    <form id="loginForm">
+      <div class="field"><label>شماره موبایل</label><input type="tel" id="loginPhone" required placeholder="09xxxxxxxxx"></div>
+      <div class="field"><label>رمز عبور</label><input type="password" id="loginPassword" required></div>
+      <button class="btn btn-primary" type="submit">ورود</button>
+    </form>
+
+    <!-- register -->
+    <form id="registerForm" style="display:none;">
+      <div class="field"><label>نام فروشگاه</label><input type="text" id="regShopName" required placeholder="مثلاً بوتیک لیلا"></div>
+      <div class="field"><label>نام کاربری (برای لینک فروشگاه)</label><input type="text" id="regUsername" required placeholder="leila_boutique" pattern="[a-z0-9_]{3,20}"></div>
+      <div class="field"><label>شماره موبایل</label><input type="tel" id="regPhone" required placeholder="09xxxxxxxxx"></div>
+      <div class="field"><label>رمز عبور</label><input type="password" id="regPassword" required minlength="6"></div>
+      <button class="btn btn-primary" type="submit">ساخت فروشگاه</button>
+    </form>
+
+    <div class="switch-mode">
+      <span id="toRegisterWrap">فروشگاه نداری؟ <a id="toRegister">بساز</a></span>
+      <span id="toLoginWrap" style="display:none;">قبلاً ثبت‌نام کردی؟ <a id="toLogin">وارد شو</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <header class="appbar">
+    <div class="brand"><div class="brand-mark"></div>ویترین <span class="shopname" id="shopNameLbl"></span></div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="shopname" id="planLbl"></span>
+      <button class="icon-btn" id="logoutBtn">خروج</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="num" id="statOrders">–</div><div class="lbl">سفارش</div></div>
+      <div class="stat-card"><div class="num" id="statProducts">–</div><div class="lbl">محصول فعال</div></div>
+      <div class="stat-card"><div class="num" id="statViews">–</div><div class="lbl">بازدید</div></div>
+    </div>
+
+    <div class="shop-link-box">
+      <code id="shopLinkText">shop.example.com/username</code>
+      <button id="copyLinkBtn">کپی</button>
+    </div>
+
+    <div class="section-title">
+      <h2>محصولات</h2>
+      <button class="add-btn" id="addProductBtn">+ افزودن محصول</button>
+    </div>
+    <div class="product-list" id="productList">
+      <div class="empty-state">هنوز محصولی اضافه نکرده‌ای</div>
+    </div>
+
+    <div class="section-title"><h2>سفارش‌های اخیر</h2></div>
+    <div id="orderList">
+      <div class="empty-state">هنوز سفارشی ثبت نشده</div>
+    </div>
+  </main>
+</div>
+
+<!-- ================= PRODUCT MODAL ================= -->
+<div class="modal-overlay" id="productModalOverlay">
+  <div class="modal">
+    <button class="close-x" id="closeModalBtn">✕</button>
+    <h3 id="modalTitle">افزودن محصول</h3>
+    <div class="form-msg" id="modalMsg"></div>
+    <form id="productForm">
+      <input type="hidden" id="productId">
+      <div class="field"><label>نام محصول</label><input type="text" id="pName" required></div>
+      <div class="field"><label>توضیح (اختیاری)</label><textarea id="pDesc"></textarea></div>
+      <div class="field"><label>قیمت (تومان)</label><input type="number" id="pPrice" required min="0"></div>
+
+      <div class="field" id="simpleStockField"><label>موجودی</label><input type="number" id="pStock" min="0" value="1"></div>
+
+      <div class="field">
+        <label>عکس محصول</label>
+        <input type="file" id="pImageFile" accept="image/*">
+        <input type="url" id="pImage" placeholder="یا لینک عکس را اینجا بگذار" style="margin-top:8px;">
+        <div id="imgPreviewWrap" style="margin-top:8px; display:none;">
+          <img id="imgPreview" style="width:70px; height:70px; object-fit:cover; border-radius:10px;">
+        </div>
+        <div id="uploadStatus" style="font-size:12px; color:var(--cream-dim); margin-top:6px;"></div>
+      </div>
+
+      <div class="field">
+        <label style="display:flex; align-items:center; justify-content:space-between;">
+          سایز/رنگ‌های مختلف دارد؟
+          <input type="checkbox" id="hasVariantsToggle" style="width:auto;">
+        </label>
+      </div>
+
+      <div id="variantsWrap" style="display:none; margin-bottom:14px;">
+        <div id="variantRows"></div>
+        <button type="button" class="btn btn-secondary" id="addVariantRow" style="margin-top:4px;">+ افزودن گزینه</button>
+      </div>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn btn-primary">ذخیره</button>
+        <button type="button" class="btn btn-secondary" id="deleteProductBtn" style="display:none;">حذف</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const API = ""; // same-origin; e.g. "https://api.vitrin.example" if hosted separately
+
+// ---------- helpers ----------
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    credentials: "include",
+    headers: { "content-type": "application/json" },
+    ...opts,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "خطای ناشناخته");
+  return data;
+}
+function toman(n){ return Number(n).toLocaleString("fa-IR") + " تومان"; }
+
+// ---------- auth screen switching ----------
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const formMsg = document.getElementById("formMsg");
+
+document.getElementById("toRegister").onclick = () => {
+  loginForm.style.display = "none"; registerForm.style.display = "block";
+  document.getElementById("toRegisterWrap").style.display = "none";
+  document.getElementById("toLoginWrap").style.display = "block";
+  document.getElementById("authTitle").textContent = "ساخت فروشگاه رایگان";
+  document.getElementById("authSub").textContent = "کمتر از یک دقیقه";
+};
+document.getElementById("toLogin").onclick = () => {
+  registerForm.style.display = "none"; loginForm.style.display = "block";
+  document.getElementById("toLoginWrap").style.display = "none";
+  document.getElementById("toRegisterWrap").style.display = "block";
+  document.getElementById("authTitle").textContent = "ورود به پنل مدیریت";
+  document.getElementById("authSub").textContent = "فروشگاهت را از اینجا مدیریت کن";
+};
+
+function showMsg(el, text, ok=false){
+  el.textContent = text; el.classList.add("show");
+  el.classList.toggle("ok", ok);
+}
+
+loginForm.onsubmit = async (e) => {
+  e.preventDefault();
+  formMsg.classList.remove("show");
+  try {
+    await api("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        phone: document.getElementById("loginPhone").value.trim(),
+        password: document.getElementById("loginPassword").value,
+      }),
+    });
+    await boot();
+  } catch (err) { showMsg(formMsg, err.message); }
+};
+
+registerForm.onsubmit = async (e) => {
+  e.preventDefault();
+  formMsg.classList.remove("show");
+  try {
+    await api("/api/auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        shop_name: document.getElementById("regShopName").value.trim(),
+        username: document.getElementById("regUsername").value.trim(),
+        phone: document.getElementById("regPhone").value.trim(),
+        password: document.getElementById("regPassword").value,
+      }),
+    });
+    await boot();
+  } catch (err) { showMsg(formMsg, err.message); }
+};
+
+document.getElementById("logoutBtn").onclick = async () => {
+  await api("/api/auth/logout", { method: "POST" });
+  location.reload();
+};
+
+// ---------- boot: check session, load app ----------
+async function boot() {
+  try {
+    const me = await api("/api/auth/me");
+    document.getElementById("authScreen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("shopNameLbl").textContent = "— " + me.shop_name;
+    const link = location.origin.replace("dashboard", "") + "s/" + me.username; // adjust to real routing
+    document.getElementById("shopLinkText").textContent = link;
+    document.getElementById("copyLinkBtn").onclick = () => {
+      navigator.clipboard.writeText(link);
+      document.getElementById("copyLinkBtn").textContent = "کپی شد!";
+      setTimeout(() => document.getElementById("copyLinkBtn").textContent = "کپی", 1500);
+    };
+    await Promise.all([loadStats(), loadProducts(), loadOrders(), loadPlanBadge()]);
+  } catch {
+    document.getElementById("authScreen").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+  }
+}
+
+async function loadPlanBadge() {
+  try {
+    const p = await api("/api/admin/plan");
+    document.getElementById("planLbl").textContent = "پلن " + p.plan_name;
+  } catch {}
+}
+
+// ---------- stats ----------
+async function loadStats() {
+  const s = await api("/api/admin/stats");
+  document.getElementById("statOrders").textContent = s.total_orders;
+  document.getElementById("statProducts").textContent = s.active_products;
+  document.getElementById("statViews").textContent = s.total_views;
+}
+
+// ---------- products ----------
+let productsCache = [];
+async function loadProducts() {
+  productsCache = await api("/api/admin/products");
+  const list = document.getElementById("productList");
+  if (!productsCache.length) {
+    list.innerHTML = '<div class="empty-state">هنوز محصولی اضافه نکرده‌ای</div>';
+    return;
+  }
+  list.innerHTML = productsCache.map(p => `
+    <div class="product-row">
+      <div class="p-thumb">${p.image_url ? `<img src="${p.image_url}">` : ""}</div>
+      <div class="p-info">
+        <div class="name">${p.name}</div>
+        <div class="meta">${toman(p.price)} · موجودی ${p.stock}
+          <span class="badge ${p.status === 'active' ? 'active' : p.status === 'hidden' ? 'hidden' : 'out'}">
+            ${p.status === 'active' ? 'فعال' : p.status === 'hidden' ? 'مخفی' : 'ناموجود'}
+          </span>
+        </div>
+      </div>
+      <div class="p-actions">
+        <button onclick="editProduct(${p.id})">✎</button>
+        <button class="danger" onclick="deleteProduct(${p.id})">🗑</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+const overlay = document.getElementById("productModalOverlay");
+const productForm = document.getElementById("productForm");
+const modalMsg = document.getElementById("modalMsg");
+const deleteBtn = document.getElementById("deleteProductBtn");
+
+function openModal(product = null) {
+  modalMsg.classList.remove("show");
+  document.getElementById("modalTitle").textContent = product ? "ویرایش محصول" : "افزودن محصول";
+  document.getElementById("productId").value = product?.id || "";
+  document.getElementById("pName").value = product?.name || "";
+  document.getElementById("pDesc").value = product?.description || "";
+  document.getElementById("pPrice").value = product?.price || "";
+  document.getElementById("pImage").value = product?.image_url || "";
+  document.getElementById("pImageFile").value = "";
+  document.getElementById("uploadStatus").textContent = "";
+
+  const previewWrap = document.getElementById("imgPreviewWrap");
+  if (product?.image_url) {
+    document.getElementById("imgPreview").src = product.image_url;
+    previewWrap.style.display = "block";
+  } else {
+    previewWrap.style.display = "none";
+  }
+
+  const variants = product?.variants ? (typeof product.variants === "string" ? JSON.parse(product.variants) : product.variants) : null;
+  const hasVariants = Array.isArray(variants) && variants.length > 0;
+  document.getElementById("hasVariantsToggle").checked = hasVariants;
+  document.getElementById("variantsWrap").style.display = hasVariants ? "block" : "none";
+  document.getElementById("simpleStockField").style.display = hasVariants ? "none" : "block";
+  document.getElementById("pStock").value = hasVariants ? "" : (product?.stock ?? 1);
+
+  document.getElementById("variantRows").innerHTML = "";
+  if (hasVariants) {
+    variants.forEach(v => addVariantRow(v.size || "", v.color || "", v.stock ?? 0));
+  } else {
+    addVariantRow(); // one empty row ready if they toggle it on
+  }
+
+  deleteBtn.style.display = product ? "block" : "none";
+  overlay.classList.add("show");
+}
+document.getElementById("addProductBtn").onclick = () => openModal();
+document.getElementById("closeModalBtn").onclick = () => overlay.classList.remove("show");
+
+document.getElementById("hasVariantsToggle").onchange = (e) => {
+  document.getElementById("variantsWrap").style.display = e.target.checked ? "block" : "none";
+  document.getElementById("simpleStockField").style.display = e.target.checked ? "none" : "block";
+};
+
+function addVariantRow(size = "", color = "", stock = 0) {
+  const row = document.createElement("div");
+  row.className = "variant-row";
+  row.innerHTML = `
+    <input type="text" placeholder="سایز (مثلاً M)" class="v-size" value="${size}">
+    <input type="text" placeholder="رنگ (مثلاً مشکی)" class="v-color" value="${color}">
+    <input type="number" placeholder="موجودی" class="v-stock" min="0" value="${stock}">
+    <button type="button" onclick="this.parentElement.remove()">✕</button>
+  `;
+  document.getElementById("variantRows").appendChild(row);
+}
+document.getElementById("addVariantRow").onclick = () => addVariantRow();
+
+function collectVariants() {
+  return Array.from(document.querySelectorAll("#variantRows .variant-row"))
+    .map(row => ({
+      size: row.querySelector(".v-size").value.trim(),
+      color: row.querySelector(".v-color").value.trim(),
+      stock: Number(row.querySelector(".v-stock").value) || 0,
+    }))
+    .filter(v => v.size || v.color);
+}
+
+// ---------- image compression + upload ----------
+function compressImage(file, maxDim = 900, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = () => { img.src = reader.result; };
+    reader.onerror = reject;
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > height && width > maxDim) { height *= maxDim / width; width = maxDim; }
+      else if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          const r2 = new FileReader();
+          r2.onload = () => resolve(r2.result.split(",")[1]); // base64 without prefix
+          r2.readAsDataURL(blob);
+        },
+        "image/jpeg", quality
+      );
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById("pImageFile").onchange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById("uploadStatus");
+  statusEl.textContent = "در حال فشرده‌سازی و آپلود…";
+  try {
+    const base64 = await compressImage(file);
+    const { url } = await api("/api/admin/upload", {
+      method: "POST",
+      body: JSON.stringify({ data: base64, ext: "jpg" }),
+    });
+    document.getElementById("pImage").value = url;
+    document.getElementById("imgPreview").src = url;
+    document.getElementById("imgPreviewWrap").style.display = "block";
+    statusEl.textContent = "آپلود شد ✓";
+  } catch (err) {
+    statusEl.textContent = "خطا در آپلود: " + err.message;
+  }
+};
+
+function editProduct(id) {
+  openModal(productsCache.find(p => p.id === id));
+}
+async function deleteProduct(id) {
+  if (!confirm("این محصول حذف شود؟")) return;
+  await api(`/api/admin/products/${id}`, { method: "DELETE" });
+  await loadProducts(); await loadStats();
+}
+
+productForm.onsubmit = async (e) => {
+  e.preventDefault();
+  const id = document.getElementById("productId").value;
+  const usesVariants = document.getElementById("hasVariantsToggle").checked;
+  const variants = usesVariants ? collectVariants() : null;
+  if (usesVariants && !variants.length) {
+    showMsg(modalMsg, "حداقل یک گزینه سایز/رنگ اضافه کن یا این بخش را غیرفعال کن");
+    return;
+  }
+  const payload = {
+    name: document.getElementById("pName").value.trim(),
+    description: document.getElementById("pDesc").value.trim(),
+    price: Number(document.getElementById("pPrice").value),
+    image_url: document.getElementById("pImage").value.trim() || null,
+    variants: usesVariants ? variants : null,
+    stock: usesVariants ? undefined : Number(document.getElementById("pStock").value),
+  };
+  try {
+    if (id) {
+      await api(`/api/admin/products/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+    } else {
+      await api("/api/admin/products", { method: "POST", body: JSON.stringify(payload) });
+    }
+    overlay.classList.remove("show");
+    await loadProducts(); await loadStats();
+  } catch (err) { showMsg(modalMsg, err.message); }
+};
+deleteBtn.onclick = async () => {
+  const id = document.getElementById("productId").value;
+  if (!id || !confirm("این محصول حذف شود؟")) return;
+  await api(`/api/admin/products/${id}`, { method: "DELETE" });
+  overlay.classList.remove("show");
+  await loadProducts(); await loadStats();
+};
+
+// ---------- orders ----------
+async function loadOrders() {
+  const orders = await api("/api/admin/orders");
+  const list = document.getElementById("orderList");
+  if (!orders.length) {
+    list.innerHTML = '<div class="empty-state">هنوز سفارشی ثبت نشده</div>';
+    return;
+  }
+  list.innerHTML = orders.map(o => `
+    <div class="order-row">
+      <div class="top"><span>${o.product_name}</span><span>${o.quantity} عدد</span></div>
+      <div class="sub">${o.buyer_name || "بدون نام"} ${o.buyer_phone ? "· " + o.buyer_phone : ""} ${o.variant ? "· " + o.variant : ""}</div>
+    </div>
+  `).join("");
+}
+
+boot();
+</script>
+</body>
+</html>
